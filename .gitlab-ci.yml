@@ -32,6 +32,6 @@ build_and_push:
     - git config --global user.name "GitLab CI"
     - git add nodejs-app/VERSION
     - git commit -m "Updated image tag to $IMAGE_TAG"
-    - git push https://oauth2:${GITHUB_TOKEN}@github.com/goldybawa48/nodejs-app.git main
+    - git push https://${GITHUB_TOKEN}@github.com/goldybawa48/nodejs-app.git main
   only:
     - main
