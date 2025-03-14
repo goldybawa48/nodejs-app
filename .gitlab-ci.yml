@@ -5,7 +5,7 @@ variables:
   IMAGE_NAME: "goldybawa48/nodejs-project"
 
 before_script:
-  - export VERSION_FILE="VERSION"
+  - export VERSION_FILE="nodejs-app/VERSION"
   - |
     if [ ! -f "$VERSION_FILE" ]; then
       echo "01" > "$VERSION_FILE"
@@ -20,15 +20,18 @@ build_and_push:
   image: docker:latest
   services:
     - docker:dind
+  variables:
+    DOCKER_DRIVER: overlay2
   script:
-    - docker login -u "$D_USERNAME" -p "$D_TOKEN"
-    - docker build -f ./ multi-stage.dockerfile-t "$IMAGE_NAME:$IMAGE_TAG" .
+    - echo "$D_TOKEN" | docker login -u "$D_USERNAME" --password-stdin
+    - docker build -f nodejs-app/multi-stage.dockerfile -t "$IMAGE_NAME:$IMAGE_TAG" nodejs-app/
     - docker push "$IMAGE_NAME:$IMAGE_TAG"
+
+    # Commit the new version back to Git
     - git config --global user.email "gitlab@ci.com"
     - git config --global user.name "GitLab CI"
-    - git add VERSION
+    - git add nodejs-app/VERSION
     - git commit -m "Updated image tag to $IMAGE_TAG"
     - git push https://oauth2:${GITHUB_TOKEN}@github.com/goldybawa48/nodejs-app.git main
   only:
     - main
-
