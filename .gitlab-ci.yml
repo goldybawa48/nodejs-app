@@ -1,19 +1,34 @@
 stages:
   - build
-  - test
-  - deploy
 
-job1:
+variables:
+  IMAGE_NAME: "goldybawa48/nodejs-project"
+
+before_script:
+  - export VERSION_FILE="VERSION"
+  - |
+    if [ ! -f "$VERSION_FILE" ]; then
+      echo "01" > "$VERSION_FILE"
+    else
+      VERSION=$(cat "$VERSION_FILE" | awk '{printf "%02d", $1+1}')
+      echo "$VERSION" > "$VERSION_FILE"
+    fi
+  - export IMAGE_TAG=$(cat "$VERSION_FILE")
+
+build_and_push:
   stage: build
+  image: docker:latest
+  services:
+    - docker:dind
   script:
-    - echo "Building the application"
+    - docker login -u "$D_USERNAME" -p "$D_TOKEN"
+    - docker build -f ./ multi-stage.dockerfile-t "$IMAGE_NAME:$IMAGE_TAG" .
+    - docker push "$IMAGE_NAME:$IMAGE_TAG"
+    - git config --global user.email "gitlab@ci.com"
+    - git config --global user.name "GitLab CI"
+    - git add VERSION
+    - git commit -m "Updated image tag to $IMAGE_TAG"
+    - git push https://oauth2:${GITHUB_TOKEN}@github.com/goldybawa48/nodejs-app.git main
+  only:
+    - main
 
-job2:
-  stage: test
-  script:
-    - echo "Running tests"
-
-job3:
-  stage: deploy
-  script:
-    - echo "Deploying the application"
