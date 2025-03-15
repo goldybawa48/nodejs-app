@@ -5,31 +5,31 @@ on:
     branches:
       - nothing
 
-# jobs:
-#   deploy:
-#     runs-on: ubuntu-latest
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
 
-#     steps:
-#       - name: Checkout Code
-#         uses: actions/checkout@v4
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-#       - name: Set up SSH
-#         run: |
-#           mkdir -p ~/.ssh
-#           printf "%s" "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-#           chmod 600 ~/.ssh/id_rsa
-#           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          printf "%s" "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
-#       - name: Test SSH Connection
-#         run: |
-#           ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} "echo 'SSH Connection Successful'"
+      - name: Test SSH Connection
+        run: |
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} "echo 'SSH Connection Successful'"
 
-#       - name: Run Commands on EC2
-#         run: |
-#           ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
-#             echo "Connected to EC2!"
-#             cd /home/ubuntu/client-git/nodejs-app/nodejs-app
-#             git reset --hard origin/main
-#             git pull origin main
-#             docker-compose up --build -d
-#           EOF
+      - name: Run Commands on EC2
+        run: |
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
+            echo "Connected to EC2!"
+            cd /home/ubuntu/client-git/nodejs-app/nodejs-app
+            git reset --hard origin/main
+            git pull origin main
+            docker-compose up --build -d
+          EOF
